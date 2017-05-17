@@ -1,0 +1,14 @@
+{
+  "name": "jianshu_crawler",
+  "version": "1.0.0",
+  "description": "use node&cheerio to crawler jiashu",
+  "main": "crawler.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "wjg",
+  "license": "MIT",
+  "dependencies": {
+    "cheerio": "^0.22.0"
+  }
+}
