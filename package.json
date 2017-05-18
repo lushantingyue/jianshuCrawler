@@ -9,6 +9,7 @@
   "author": "wjg",
   "license": "MIT",
   "dependencies": {
-    "cheerio": "^0.22.0"
+    "cheerio": "^0.22.0",
+    "superagent": "^3.5.2"
   }
 }
