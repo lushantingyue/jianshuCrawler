@@ -1,6 +1,9 @@
 // 使用 superagent 模块 代理请求网页 + cheerio爬取节点数据
 const request = require('superagent');
 const cheerio = require('cheerio');
+require('./model/db');
+var mongoose = require('mongoose');
+var Article_Model = mongoose.model('Article'); // 使用User模型
 
 // TODO:爬取简书7日热门
 function getPage() {
@@ -59,13 +62,64 @@ function contentFilter(page) {
             Author: author,
             Title: title,
             Abstract: abstract,
-            Date:time,
-            Avatar:avatar
+            Date: time,
+            Avatar: avatar
         };
         data.push(articleData);
+        // 更具Model创建数据实体
+        new Article_Model({
+            author: author,
+            title: title,
+            abstract: abstract,
+            date: time,
+            avatar: avatar
+        }).save(function (err, user, count) {
+            // ctx.redirect('/');
+            console.log('简书7日热门 入库成功...')
+        });
     });
 
     return data;
 }
 
+function queryDatabase() {
+    Article_Model.find(function (err, list) {
+        if (err)
+            console.log('failed...')
+        else {
+            console.log('result:' + list);
+        }
+    });
+}
+
+function clearDatabase() {
+    // 遍历数据表的 author字段, 逐个移除
+    // Article_Model.remove({})
+}
+
+function removeByAuthor(str) {
+    if (!str)
+        return;
+    else
+        var author = str;
+    var condition = {
+        $or: [{"author": author}]  // 条件满足其一
+        // $and: [{"username": usr}, {"goodAt": good}]  // 同时满足条件
+    }
+    Article_Model.findOne({"author": author}, function (err, doc) {
+        if (err) {
+            console.log(err)
+            return;
+        }
+        console.log('to remove: ' + doc);
+        if (doc != null) {
+            doc.remove();
+            console.log('remove success...');
+        }
+    })
+}
+
 getPage();
+// clearDatabase();
+// removeByAuthor('');
+queryDatabase();

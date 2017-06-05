@@ -10,6 +10,9 @@
   "license": "MIT",
   "dependencies": {
     "cheerio": "^0.22.0",
-    "superagent": "^3.5.2"
+    "koa": "^2.2.0",
+    "koa-router": "^7.1.1",
+    "superagent": "^3.5.2",
+    "mongoose": "^4.10.2"
   }
 }
