@@ -2,9 +2,10 @@
 const request = require('superagent');
 const cheerio = require('cheerio');
 
+// TODO:爬取简书7日热门
 function getPage() {
     request
-        .get('http://www.jianshu.com')
+        .get('http://www.jianshu.com/trending/weekly')
         // .query({ action: 'edit', city: 'London' }) // query string
         // .use(prefix) // Prefixes *only* this request
         // .use(nocache) // Prevents caching of *only* this request
@@ -14,7 +15,7 @@ function getPage() {
                 console.log('request failed.' + err);
             } else {
                 // 返回的text
-                var show = contentFilter(res.text.trim());
+                var show = contentFilter(res.text);
                 console.log(res);
                 console.log('\n\n\n========================all response divider =============================\n\n\n');
                 console.log(show);
@@ -36,10 +37,16 @@ function contentFilter(page) {
         var content = article.find('.content');
         // console.log(content + '\n')
 
+        // var author = content.find('.author').text();
+        // #note-13049926 > div > div.author > a
         var avatar = content.find('.author a img').prop('src');
+        // $('.apple', '#fruits').text()
         var author = content.find('.author .name a').text().trim();
-        // console.log(author + '\n')
         var time = content.find('.author .name .time').prop('data-shared-at');
+        // $('#fruits').children().last().text();
+
+        // #note-13072607 > div > div.author > div > span
+        // console.log(author + '\n')
 
         var title = content.find('.title').text().trim();
         // console.log(title + '\n')
