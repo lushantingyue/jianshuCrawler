@@ -43,13 +43,13 @@ function contentFilter(page) {
         var content = article.find('.content');
         // console.log(content + '\n')
 
-        var author = content.find('.author').text();
+        var author = content.find('.author').text().trim();
         // console.log(author + '\n')
 
-        var title = content.find('.title').text();
+        var title = content.find('.title').text().trim();
         // console.log(title + '\n')
 
-        var abstract = content.find('.abstract').text();
+        var abstract = content.find('.abstract').text().trim();
         // console.log(abstract + '\n')
 
         // 对象赋值
@@ -71,4 +71,11 @@ function showData(data) {
         console.log(item.Title + '\n');
         console.log(item.Abstract + '\n');
     })
+
+    // Q: 怎样把获取的data数据在浏览器显示出来
+    // 怎样把获取的data数据在浏览器显示出来，而不是打印出来
+    // 5天前 源自：进击Node.js基础（一）... 5-10 24 浏览 1 回答
+    // 最佳回答
+    // 4天前
+    // A: 可以使用node.js新建一个服务器 然后将data数据传输到这个服务器上 然后前端通过ajax的get方法访问这个服务器 拿到数据
 }
