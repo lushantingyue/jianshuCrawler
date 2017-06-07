@@ -9,11 +9,22 @@ var Article = new Schema({
     title: String,
     abstract: String,
     date:String,
-    avatar:String
+    avatar:String,
+    href:String
+});
+
+var ArticleDetail = new Schema({
+    author: String,
+    title: String,
+    text: String,
+    date:String,
+    avatar:String,
+    wordage:String
 });
 
 // 根据模板定义模型
 mongoose.model("Article", Article);
+mongoose.model("ArticleDetail", ArticleDetail);
 // 创建数据库连接
 mongoose.Promise = global.Promise;
 
@@ -26,4 +37,4 @@ mongoose.connect('mongodb://localhost/MyBlog-User');
 //     console.log('连接成功...');
 // });
 
-// module.exports = mongoose;
+module.exports = mongoose;

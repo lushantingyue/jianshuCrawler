@@ -1,9 +1,10 @@
 // 使用 superagent 模块 代理请求网页 + cheerio爬取节点数据
 const request = require('superagent');
 const cheerio = require('cheerio');
-require('./model/db');
-var mongoose = require('mongoose');
+var mongoose = require('./model/db');
+// var mongoose = require('mongoose');
 var Article_Model = mongoose.model('Article'); // 使用User模型
+var ArticleDetail = mongoose.model('ArticleDetail');
 
 // TODO:爬取简书7日热门
 function getPage() {
@@ -19,9 +20,12 @@ function getPage() {
             } else {
                 // 返回的text
                 var show = contentFilter(res.text);
-                console.log(res);
+                // 遍历本地数据爬取详情页
+                crawler2detail(show);
+                console.log(`首页(head/request/response/html):` + res);
                 console.log('\n\n\n========================all response divider =============================\n\n\n');
                 console.log(show);
+                // console.log(page);
             }
         });
 }
@@ -57,13 +61,17 @@ function contentFilter(page) {
         var abstract = content.find('.abstract').text().trim();
         // console.log(abstract + '\n')
 
+        var href = content.find('.meta a').prop('href');
+        console.log(href);
+
         // 对象赋值
         var articleData = {
             Author: author,
             Title: title,
             Abstract: abstract,
             Date: time,
-            Avatar: avatar
+            Avatar: avatar,
+            href: href
         };
         data.push(articleData);
         // 更具Model创建数据实体
@@ -72,7 +80,8 @@ function contentFilter(page) {
             title: title,
             abstract: abstract,
             date: time,
-            avatar: avatar
+            avatar: avatar,
+            href: href
         }).save(function (err, user, count) {
             // ctx.redirect('/');
             console.log('简书7日热门 入库成功...')
@@ -80,6 +89,67 @@ function contentFilter(page) {
     });
 
     return data;
+}
+
+function articleFilter(articleData) {
+    var $ = cheerio.load(articleData);
+    // 文章列表
+    // body > div.note > div.post > div.article > h1
+    var list = $('div.note');
+    // console.log(list);
+
+    var data = [];
+    var title = list.find('div.post div.article h1').text().trim();
+    console.log('标题: ' + title);
+    // body > div.note > div.post > div.article > div.author > a > img
+    var avatar = list.find('div.post div.article div.author a img').prop('src');
+    console.log('头像: ' + avatar);
+    // body > div.note > div.post > div.article > div.author > div > span.name > a
+    var name = list.find('div.post div.article div.author div span.name a').text().trim();
+    console.log('昵称: ' + name);
+    // body > div.note > div.post > div.article > div.show-content
+    var content = list.find('div.post div.article div.show-content').html();
+    console.log('================================================');
+    console.log('正文: ' + content);
+    console.log("================================================");
+    // 发表时间, 字数
+    var pub_time = list.find('div.post div.article div.author div div span.publish-time').text();
+    console.log(pub_time);
+    var wordage = list.find('div.post div.article div.author div div span.wordage').text();
+    console.log(wordage);
+
+    new ArticleDetail({
+        author: name,
+        title: title,
+        text: content,
+        date: pub_time,
+        avatar: avatar,
+        wordage: wordage
+    }).save(function (err, res, count) {
+        if (err) {
+            console.log(err);
+            return;
+        } else {
+            console.log(res);
+            console.log(count);
+        }
+    });
+}
+
+function crawler2detail(collection) {
+    for (v of collection) {
+        console.log('========== page_href: ' + v.href + ' ==============');
+        request.get('http://www.jianshu.com' + v.href)
+            .end(function (err, resp) {
+                if (err) {
+                    console.log(err);
+                    return;
+                } else {
+                    // console.log(resp.text);
+                    articleFilter(resp.text);
+                }
+            });
+    }
 }
 
 function queryDatabase() {
@@ -92,9 +162,34 @@ function queryDatabase() {
     });
 }
 
+function queryArticleDetailByAuthor(author) {
+    ArticleDetail.findOne({'author': author}, function (err, item) {
+        if (err)
+            console.log('failed...');
+        else
+            console.log('result: ' + item);
+    })
+}
+
+// 根据 href字段 查询单条信息
+function queryByhref(href) {
+
+    Article_Model.findOne({"href": href}, (err, item) => {
+        if (err)
+            console.log('failed...')
+        else
+            console.log('result: ' + item)
+    })
+}
+
 function clearDatabase() {
-    // 遍历数据表的 author字段, 逐个移除
-    // Article_Model.remove({})
+    // 移除整个collection数据表
+    ArticleDetail.remove({}, function (err) {
+        if (err)
+            console.log(err);
+        else
+            console.log('drop collection success...');
+    });
 }
 
 function removeByAuthor(str) {
@@ -106,20 +201,22 @@ function removeByAuthor(str) {
         $or: [{"author": author}]  // 条件满足其一
         // $and: [{"username": usr}, {"goodAt": good}]  // 同时满足条件
     }
-    Article_Model.findOne({"author": author}, function (err, doc) {
+    Article_Model.findOneAndRemove({"author": author}, function (err, doc) {
         if (err) {
             console.log(err)
             return;
         }
-        console.log('to remove: ' + doc);
-        if (doc != null) {
-            doc.remove();
-            console.log('remove success...');
-        }
+        console.log('remove success...');
     })
 }
 
-getPage();
+// getPage();
 // clearDatabase();
-// removeByAuthor('');
-queryDatabase();
+// 查看 db.articles.find()
+// 删除collections    CLI: db.articles.drop()
+// removeByAuthor('阿阳sunny');
+// queryDatabase();
+// queryByhref('/p/742167c2a2e8');
+// queryByhref('/p/d315a19a991a');
+
+queryArticleDetailByAuthor('去年的茶');
