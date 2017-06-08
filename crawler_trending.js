@@ -91,7 +91,7 @@ function contentFilter(page) {
     return data;
 }
 
-function articleFilter(articleData) {
+function articleFilter(articleData, href) {
     var $ = cheerio.load(articleData);
     // 文章列表
     // body > div.note > div.post > div.article > h1
@@ -108,7 +108,9 @@ function articleFilter(articleData) {
     var name = list.find('div.post div.article div.author div span.name a').text().trim();
     console.log('昵称: ' + name);
     // body > div.note > div.post > div.article > div.show-content
-    var content = list.find('div.post div.article div.show-content').html();
+    var content = list.find('div.post div.article div.show-content').find('p').text();
+    // parse2chnChar(content);
+    // .html().text();
     console.log('================================================');
     console.log('正文: ' + content);
     console.log("================================================");
@@ -124,7 +126,8 @@ function articleFilter(articleData) {
         text: content,
         date: pub_time,
         avatar: avatar,
-        wordage: wordage
+        wordage: wordage,
+        href:href
     }).save(function (err, res, count) {
         if (err) {
             console.log(err);
@@ -139,6 +142,7 @@ function articleFilter(articleData) {
 function crawler2detail(collection) {
     for (v of collection) {
         console.log('========== page_href: ' + v.href + ' ==============');
+        const href = v.href;
         request.get('http://www.jianshu.com' + v.href)
             .end(function (err, resp) {
                 if (err) {
@@ -146,14 +150,14 @@ function crawler2detail(collection) {
                     return;
                 } else {
                     // console.log(resp.text);
-                    articleFilter(resp.text);
+                    articleFilter(resp.text, href);
                 }
             });
     }
 }
 
 function queryDatabase() {
-    Article_Model.find(function (err, list) {
+    ArticleDetail.find(function (err, list) {
         if (err)
             console.log('failed...')
         else {
@@ -162,8 +166,37 @@ function queryDatabase() {
     });
 }
 
+function countArtical() {
+    Article_Model.count(function (err, num) {
+        if (err)
+            console.log('failed...')
+        else {
+            console.log('count:' + num);
+        }
+    });
+}
+
+function countArticalDetail() {
+    ArticleDetail.count(function (err, num) {
+        if (err)
+            console.log('failed...')
+        else {
+            console.log('count:' + num);
+        }
+    });
+}
+
 function queryArticleDetailByAuthor(author) {
     ArticleDetail.findOne({'author': author}, function (err, item) {
+        if (err)
+            console.log('failed...');
+        else
+            console.log('result: ' + item);
+    })
+}
+
+function queryArticleDetailByhref(href) {
+    ArticleDetail.findOne({'href': href}, function (err, item) {
         if (err)
             console.log('failed...');
         else
@@ -185,6 +218,12 @@ function queryByhref(href) {
 function clearDatabase() {
     // 移除整个collection数据表
     ArticleDetail.remove({}, function (err) {
+        if (err)
+            console.log(err);
+        else
+            console.log('drop collection success...');
+    });
+    Article_Model.remove({}, function (err) {
         if (err)
             console.log(err);
         else
@@ -216,7 +255,10 @@ function removeByAuthor(str) {
 // 删除collections    CLI: db.articles.drop()
 // removeByAuthor('阿阳sunny');
 // queryDatabase();
+// countArtical();
+// countArticalDetail();
 // queryByhref('/p/742167c2a2e8');
 // queryByhref('/p/d315a19a991a');
 
-queryArticleDetailByAuthor('去年的茶');
+// queryArticleDetailByAuthor('瓯南');
+// queryArticleDetailByhref('/p/c5bc31531ecb');

@@ -19,7 +19,8 @@ var ArticleDetail = new Schema({
     text: String,
     date:String,
     avatar:String,
-    wordage:String
+    wordage:String,
+    href:String
 });
 
 // 根据模板定义模型
