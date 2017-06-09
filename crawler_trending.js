@@ -1,5 +1,7 @@
 // 使用 superagent 模块 代理请求网页 + cheerio爬取节点数据
 const request = require('superagent');
+var htmlparser = require("htmlparser2");
+
 const cheerio = require('cheerio');
 var mongoose = require('./model/db');
 // var mongoose = require('mongoose');
@@ -25,7 +27,6 @@ function getPage() {
                 console.log(`首页(head/request/response/html):` + res);
                 console.log('\n\n\n========================all response divider =============================\n\n\n');
                 console.log(show);
-                // console.log(page);
             }
         });
 }
@@ -108,12 +109,57 @@ function articleFilter(articleData, href) {
     var name = list.find('div.post div.article div.author div span.name a').text().trim();
     console.log('昵称: ' + name);
     // body > div.note > div.post > div.article > div.show-content
-    var content = list.find('div.post div.article div.show-content').find('p').text();
-    // parse2chnChar(content);
-    // .html().text();
-    console.log('================================================');
-    console.log('正文: ' + content);
-    console.log("================================================");
+    // var content = list.find('div.post div.article div.show-content').find('p');
+    var content = list.find('div.post div.article div.show-content');
+        var parseContent = '';
+    var parser = new htmlparser.Parser({
+        onopentag: function (name, attribs) {
+            // if(name === "script" && attribs.type === "text/javascript"){
+            //     console.log("JS! Hooray!");
+            // }
+            if (name === "p") {
+                console.log("p tag!");
+                parseContent = parseContent + '<p>';
+            } else if (name == 'i') {
+                parseContent = parseContent + '<i>';
+            } else if (name == 'div') {
+                parseContent = parseContent + '<div>';
+            } else if (name == 'img') {
+                parseContent = parseContent + '<img>';
+            } else if (name == 'h1') {
+                parseContent = parseContent + '<h1>';
+            } else if (name == 'b') {
+                parseContent = parseContent + '<b>';
+            } else if (name == 'br') {
+                parseContent = parseContent + '<br>';
+            }
+        },
+        ontext: function (text) {
+            console.log("-->", text);
+            parseContent = parseContent + text;
+        },
+        onclosetag: function (tagname) {
+            if (tagname === "p") {
+                console.log("p tag end!");
+                parseContent = parseContent + '</p>';
+            } else if (name == 'i') {
+                parseContent = parseContent + '</i>';
+            } else if (name == 'h1') {
+                parseContent = parseContent + '</h1>';
+            } else if (name == 'b') {
+                parseContent = parseContent + '</b>';
+            } else if (name == 'br') {
+                parseContent = parseContent + '<br>';
+            }
+        }
+    }, {decodeEntities: true});
+    // parser.write(content);
+    // parser.end();
+    // console.log(`===========================\n` + parseContent + `=============================\n`);
+
+    // console.log('================================================');
+    // console.log('正文: ' + content);
+    // console.log("================================================");
     // 发表时间, 字数
     var pub_time = list.find('div.post div.article div.author div div span.publish-time').text();
     console.log(pub_time);
@@ -127,7 +173,7 @@ function articleFilter(articleData, href) {
         date: pub_time,
         avatar: avatar,
         wordage: wordage,
-        href:href
+        href: href
     }).save(function (err, res, count) {
         if (err) {
             console.log(err);
@@ -249,7 +295,7 @@ function removeByAuthor(str) {
     })
 }
 
-// getPage();
+getPage();
 // clearDatabase();
 // 查看 db.articles.find()
 // 删除collections    CLI: db.articles.drop()
@@ -257,7 +303,6 @@ function removeByAuthor(str) {
 // queryDatabase();
 // countArtical();
 // countArticalDetail();
-// queryByhref('/p/742167c2a2e8');
 // queryByhref('/p/d315a19a991a');
 
 // queryArticleDetailByAuthor('瓯南');
