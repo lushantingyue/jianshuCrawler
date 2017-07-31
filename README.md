@@ -13,5 +13,7 @@
  [BruceDone/awesome-crawler](https://github.com/BruceDone/awesome-crawler)
 <br><br>
  利用 phantomjs模拟浏览器行为实现爬虫: <br>
- [利用nodejs+phantomjs+casperjs采集淘宝商品的价格](http://blog.csdn.net/sqzhao/article/details/47024119)
- 
+ [利用nodejs+phantomjs+casperjs采集淘宝商品的价格](http://blog.csdn.net/sqzhao/article/details/47024119)<br>
+ [用Nodejs做爬虫](http://blog.csdn.net/yc123h/article/details/51337352)
+ 答案对人有帮助，有参考价值0 答案没帮助，是错误的答案，答非所问 <br>
+ [Nodejs，不一样的爬虫实践](http://famanoder.com/bokes/56...)
