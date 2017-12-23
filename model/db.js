@@ -29,13 +29,17 @@ mongoose.model("ArticleDetail", ArticleDetail);
 // 创建数据库连接
 mongoose.Promise = global.Promise;
 
-mongoose.connect('mongodb://localhost/MyBlog-User');
+// 连接数据库, 方式一
+// mongoose.connect('mongodb://localhost/MyBlog-User');
 
-// var conn = mongoose.createConnection('localhost','MyBlog-User');
-//
-// conn.on('error', console.error.bind(console, '连接错误'));
-// conn.once('open', function () {
-//     console.log('连接成功...');
-// });
+// 连接数据库, 方式二
+var conn = mongoose.createConnection('localhost','MyBlog-User');
+
+conn.on('error', console.error.bind(console, '连接错误'));
+// open -> openUri
+// `open()` is deprecated in mongoose >= 4.11.0, use `openUri()` instead
+conn.once('openUri', function () {
+    console.log('连接成功...');
+});
 
 module.exports = mongoose;
