@@ -4,7 +4,7 @@
   "description": "use node&cheerio to crawler jiashu",
   "main": "crawler.js",
   "scripts": {
-    "scrape":"crawler_trending",
+    "scrape": "node crawler_trending",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "wjg",

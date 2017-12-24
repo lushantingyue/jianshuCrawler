@@ -9,9 +9,16 @@ var Article_Model = mongoose.model('Article'); // 使用User模型
 var ArticleDetail = mongoose.model('ArticleDetail');
 
 // TODO:爬取简书7日热门
-function getPage() {
+function getPage(page) {
+    if (page) {
+        var queryPage = "?page=" + page
+        console.log(`onQueryPage.`);
+    } else {
+        queryPage = ""
+        console.log('default pageOne.');
+    }
     request
-        .get('http://www.jianshu.com/trending/weekly')
+        .get('http://www.jianshu.com/trending/weekly'+ queryPage)
         // .query({ action: 'edit', city: 'London' }) // query string
         // .use(prefix) // Prefixes *only* this request
         // .use(nocache) // Prevents caching of *only* this request
@@ -267,13 +274,13 @@ function clearDatabase() {
         if (err)
             console.log(err);
         else
-            console.log('drop collection success...');
+            console.log('drop collection ArticleDetail success...');
     });
     Article_Model.remove({}, function (err) {
         if (err)
             console.log(err);
         else
-            console.log('drop collection success...');
+            console.log('drop collection Article_Model success...');
     });
 }
 
@@ -295,7 +302,33 @@ function removeByAuthor(str) {
     })
 }
 
-getPage();
+function getMultiPage(count) {
+
+    for (var page = 1; page < count; page++) {
+        // async function crawler() {
+        //     await
+        getPage(page)
+        // }
+    }
+}
+
+// clearDatabase()
+getMultiPage(2)
+// getPage()
+
+// 实现分页的关键DOM节点
+// <a data-page="3" href="/trending/weekly" class="load-more">阅读更多</a>
+
+// <meta name="mobile-agent" content="format=html5;url=https://www.jianshu.com/trending/weekly?page=2">
+
+// Chrome调试 可以发现request header带 page=num 参数
+// ?page=2  query参数是关键
+
+/**
+ * phantomJS模拟翻页：鼠标滑动到最后一个元素
+ */
+
+
 // clearDatabase();
 // 查看 db.articles.find()
 // 删除collections    CLI: db.articles.drop()
