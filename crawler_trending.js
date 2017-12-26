@@ -86,7 +86,7 @@ function contentFilter(page) {
         new Article_Model({
             author: author,
             title: title,
-            abstract: abstract,
+            _abstract: abstract,
             date: time,
             avatar: avatar,
             href: href
@@ -340,3 +340,11 @@ getMultiPage(2)
 
 // queryArticleDetailByAuthor('瓯南');
 // queryArticleDetailByhref('/p/c5bc31531ecb');
+
+// updateCollections()
+
+function updateCollections() {
+    // Article collection and update "abstract" column
+    db.getCollection('Article').update({}, {$rename : {"abstract" : "_abstract"}}, false, true)
+    // Schema.findOneAndUpdate({_id: id},{test: “更新字段”}).exex();
+}
