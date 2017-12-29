@@ -10,7 +10,8 @@ var Article = new Schema({
     _abstract: String,
     date:String,
     avatar:String,
-    href:String
+    href:String,
+    page:Number
 });
 
 var ArticleDetail = new Schema({

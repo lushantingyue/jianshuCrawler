@@ -10,7 +10,9 @@ var ArticleDetail = mongoose.model('ArticleDetail');
 
 // TODO:爬取简书7日热门
 function getPage(page) {
+    var pageNO = page;
     if (page) {
+        pageNO = 1;
         var queryPage = "?page=" + page
         console.log(`onQueryPage.`);
     } else {
@@ -28,7 +30,7 @@ function getPage(page) {
                 console.log('request failed.' + err);
             } else {
                 // 返回的text
-                var show = contentFilter(res.text);
+                var show = contentFilter(res.text, pageNO);
                 // 遍历本地数据爬取详情页
                 crawler2detail(show);
                 console.log(`首页(head/request/response/html):` + res);
@@ -38,7 +40,7 @@ function getPage(page) {
         });
 }
 
-function contentFilter(page) {
+function contentFilter(page, pageNO) {
     var $ = cheerio.load(page);
     // 文章列表
     var list = $('.note-list');
@@ -89,7 +91,8 @@ function contentFilter(page) {
             _abstract: abstract,
             date: time,
             avatar: avatar,
-            href: href
+            href: href,
+            page: pageNO
         }).save(function (err, user, count) {
             // ctx.redirect('/');
             console.log('简书7日热门 入库成功...')
@@ -304,10 +307,10 @@ function removeByAuthor(str) {
 
 function getMultiPage(count) {
 
-    for (var page = 1; page < count; page++) {
+    for (var page = 0; page < count; page++) {
         // async function crawler() {
         //     await
-        getPage(page)
+        getPage(page+1)
         // }
     }
 }
