@@ -36,7 +36,7 @@ function updateAllPageOnArticle(pageSize) {
 
         for (var toPage = piece; toPage > 0; toPage--) {
 
-            for (var i = 0; i < count; i++) {
+            for (var i = 0; i < pageSize; i++) {
                 Article_Model.findOneAndUpdate({"page": 1}, {"page": toPage}, function (err, doc) {
                     if (err) {
                         console.log(err)
