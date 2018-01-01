@@ -3,6 +3,8 @@ var mongoose = require('./model/db');
 var Article_Model = mongoose.model('Article'); // 使用User模型
 var ArticleDetail = mongoose.model('ArticleDetail');
 
+var cheerio = require('cheerio');
+
 function updatePageOnArticle(pageNO, toPage, count) {
 
     for (var i = 0; i < count; i++) {
@@ -21,6 +23,8 @@ function updatePageOnArticle(pageNO, toPage, count) {
     }
 }
 
+// 批量插入新字段
+// db.getCollection("articles").update({"page":{$exists:false}},{"$set":{"page":1}},false,true)
 function updateAllPageOnArticle(pageSize) {
 
     var total = Article_Model.count(function (err, num) {
@@ -79,13 +83,19 @@ function queryArticleDetailByAuthor(author) {
     })
 }
 
-function queryArticleDetailByhref(href) {
-    ArticleDetail.findOne({'href': href}, function (err, item) {
-        if (err)
+async function queryArticleDetailByhref(href) {
+    var txt = '';
+    await ArticleDetail.findOne({'href': href}, function (err, item) {
+        if (err) {
             console.log('failed...');
-        else
+        }
+        else {
             console.log('result: ' + item);
+            txt = item.text;
+        }
     })
+
+    console.log(content);
 }
 
 // 根据 href字段 查询单条信息
@@ -133,8 +143,10 @@ function removeByAuthor(str) {
     })
 }
 
-updatePageOnArticle(1, 2, 20);
-updateAllPageOnArticle(20);
+queryArticleDetailByhref('/p/30248d503ca1');
+// updatePageOnArticle(1, 2, 20);
+// updateAllPageOnArticle(20);
+
 // clearDatabase();
 
 // 查看 db.articles.find()
@@ -143,9 +155,9 @@ updateAllPageOnArticle(20);
 // queryDatabase();
 // countArtical();
 // countArticalDetail();
-queryByhref('/p/d315a19a991a');
+// queryByhref('/p/d315a19a991a');
 
-// queryArticleDetailByAuthor('瓯南');
+// queryArticleDetailByAuthor('潇逸霏');
 // queryArticleDetailByhref('/p/c5bc31531ecb');
 
 // updateCollections()
